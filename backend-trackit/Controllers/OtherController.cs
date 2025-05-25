@@ -1,0 +1,47 @@
+﻿using backend_trackit.Context;
+using backend_trackit.Models;
+using Microsoft.AspNetCore.Mvc;
+
+namespace backend_trackit.Controllers
+{
+    [ApiController]
+    [Route("trackit/[controller]")]
+    public class OtherController : ControllerBase
+    {
+        public readonly string __constr;
+        public OtherController(IConfiguration configuration)
+        {
+            __constr = configuration.GetConnectionString("koneksi");
+        }
+
+        [HttpGet("DataJenisPaket")]
+        public IActionResult getDataJenisPaket()
+        {
+            OtherContext otherContext = new OtherContext(this.__constr);
+
+            List<JenisPaket> dataJenis = otherContext.getDataJenisPaket();
+
+            if(dataJenis.Count > 0)
+            {
+                return Ok(dataJenis);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet("DataKecamatan/{nama_kabupaten}")]
+        public IActionResult getDataKecamatan(string nama_kabupaten)
+        {
+            OtherContext otherContext = new OtherContext(this.__constr);
+
+            List<Kecamatan> dataKecamatan = otherContext.GetDataKecamatanByKabupaten(nama_kabupaten);
+
+            if(dataKecamatan.Count > 0)
+            {
+                return Ok(dataKecamatan);
+            }
+
+            return BadRequest();
+        }
+    }
+}

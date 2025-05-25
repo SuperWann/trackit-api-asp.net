@@ -1,4 +1,5 @@
 ﻿using backend_trackit.Context;
+using backend_trackit.Helper;
 using backend_trackit.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,11 @@ namespace backend_trackit.Controllers
     public class AuthController : ControllerBase
     {
         public readonly string __constr;
+        private readonly IConfiguration __config;
         public AuthController(IConfiguration configuration)
         {
-            __constr = configuration.GetConnectionString("koneksi");
+            __config = configuration;
+            __constr = __config.GetConnectionString("koneksi");
         }
 
         [HttpGet("{nomorTelepon}")]
@@ -29,7 +32,7 @@ namespace backend_trackit.Controllers
             
         }
 
-        [HttpPost("login")]
+        [HttpPost("loginCustomer")]
         public IActionResult loginCustomer([FromBody]LoginCustomer loginCustomer)
         {
             CustomerContext custContext = new CustomerContext(this.__constr);
@@ -37,12 +40,32 @@ namespace backend_trackit.Controllers
 
             if (!customerExist)
             {
-                return StatusCode(500, new { message = "No telepon atau pin SALAH!" });
+                return Unauthorized(new { message = "No telepon atau pin SALAH!" });
             }
 
             List<Customer> user = custContext.getDataCustomerLogin(loginCustomer.no_telepon, loginCustomer.pin);
             return Ok(user);
+        }
 
+        [HttpPost("loginPegawai")]
+        public IActionResult loginPegawai([FromBody]LoginPegawai loginPegawai)
+        {
+            PegawaiContext pegawaiContext = new PegawaiContext(this.__constr);
+            Pegawai pegawai = pegawaiContext.getPegawaiLogin(loginPegawai.email, loginPegawai.password);
+
+            if(pegawai == null)
+            {
+                return Unauthorized(new { message = "Email atau password salah" });
+            }
+
+            JWThelper jwtHelper = new JWThelper(this.__config);
+            var token = jwtHelper.generateTokenPegawai(pegawai);
+
+            return Ok(new
+            {
+                token = token,
+                pegawai
+            });
         }
     }
 }
