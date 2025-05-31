@@ -42,6 +42,7 @@ namespace backend_trackit.Context
                         email = reader["email"].ToString(),
                         password = reader["password"].ToString(),
                         role = reader["nama_peran"].ToString(),
+                        id_kecamatan = int.Parse(reader["kecamatan_id_kecamatan"].ToString()),
                         kabupaten = reader["nama_kabupaten"].ToString(),
                         kecamatan = reader["nama_kecamatan"].ToString()
                     };

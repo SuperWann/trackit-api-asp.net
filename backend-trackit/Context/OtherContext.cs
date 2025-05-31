@@ -51,7 +51,7 @@ namespace backend_trackit.Context
         {
             List<Kecamatan> dataKecamatan = new List<Kecamatan>();
 
-            string query = @"select id_kecamatan, nama_kecamatan
+            string query = @"select *
                             from kecamatan JOIN kabupaten ON kecamatan.kabupaten_id_kabupaten = kabupaten.id_kabupaten
                             where nama_kabupaten = @nama_kabupaten";
 
@@ -68,7 +68,9 @@ namespace backend_trackit.Context
                     dataKecamatan.Add(new Kecamatan
                     {
                         id_kecamatan = int.Parse(reader["id_kecamatan"].ToString()),
-                        nama_kecamatan = reader["nama_kecamatan"].ToString()
+                        nama_kecamatan = reader["nama_kecamatan"].ToString(),
+                        latitude = Convert.ToDouble(reader["latitude"]),
+                        longitude = Convert.ToDouble(reader["longitude"]),
                     });
                 }
 

@@ -7,6 +7,7 @@
         public string email { get; set; }
         public string password { get; set; }
         public string role { get; set; }
+        public int id_kecamatan { get; set; }
         public string kecamatan {  get; set; }
         public string kabupaten {  get; set; }
     }
