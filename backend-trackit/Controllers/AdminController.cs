@@ -24,6 +24,14 @@ namespace backend_trackit.Controllers
             return Ok(orders);
         }
 
+        [HttpGet("DataOrderProcessedByKecamatanPengirim/{id_kecamatan_pengirim}")]
+        public IActionResult getDataOrderProcessedByKecamatanPengirim(int id_kecamatan_pengirim)
+        {
+            AdminContext adminContext = new AdminContext(this.__constr);
+            List<OrderCustomerProcessed> orders = adminContext.getDataOrderOnProcessByKecamatan(id_kecamatan_pengirim);
+            return Ok(orders);
+        }
+
         [HttpPost("AcceptOrder")]
         public IActionResult processOrderAccepted(ProcessOrderAccepted orderAccepted)
         {
@@ -33,17 +41,24 @@ namespace backend_trackit.Controllers
 
             if (changeStatus)
             {
-                bool result = adminContext.processOrderAccepted(orderAccepted);
+                bool accept = adminContext.processOrderAccepted(orderAccepted);
 
-                if (result)
+                if (accept)
                 {
-                    return Ok(new { message = "BERHASIL memproses pesanan" });
+                    bool trackingHistory = adminContext.createTrackingHistory(orderAccepted);
+
+                    if (trackingHistory)
+                    {
+                        return Ok(new { message = "BERHASIL memproses pesanan!" });
+                    }
+
+                    return StatusCode(500, new { message = "GAGAL memproses pesanan!!!" });
                 }
 
-                return StatusCode(500, new { message = "GAGAL memproses pesanan 2" });
+                return StatusCode(500, new { message = "GAGAL memproses pesanan!!" });
             }
 
-            return StatusCode(500, new { message = "GAGAL menambahkan pesanan!" });
+            return StatusCode(500, new { message = "GAGAL memproses pesanan!" });
         }
     }
 }

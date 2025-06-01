@@ -22,7 +22,7 @@ namespace backend_trackit.Context
 
             string query = @"select * from pegawai p 
                             join peran_pegawai pp on pp.id_peran = p.peran_pegawai_id_peran
-	                        where id_peran = 2";
+	                        where id_peran = 2  ";
 
             try
             {
