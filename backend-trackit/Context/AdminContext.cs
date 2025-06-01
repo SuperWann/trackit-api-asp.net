@@ -85,6 +85,7 @@ namespace backend_trackit.Context
                     orders.Add(new OrderCustomerProcessed()
                     {
                         id_order = int.Parse(reader["id_order"].ToString()),
+                        no_resi = reader["no_resi"].ToString(),
                         id_customer_order = int.Parse(reader["customer_id_customer"].ToString()),
                         id_jenis_paket = int.Parse(reader["jenis_paket_id_jenis_paket"].ToString()),
                         id_status_paket = int.Parse(reader["status_paket_id_status"].ToString()),

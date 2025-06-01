@@ -39,6 +39,15 @@ namespace backend_trackit.Controllers
             return Ok(orders);
         }
 
+        [HttpGet("DataOrderProcessed/{id_customer}")]
+        public IActionResult getDataOrderProcessed(int id_customer)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+            List<OrderCustomerProcessed> orders = custContext.getDataOrderProcessedByCustomer(id_customer);
+
+            return Ok(orders);
+        }
+
         [HttpDelete("CancelOrder/{id_order}")]
         public IActionResult cancelDataOrder(int id_order)
         {
@@ -51,6 +60,23 @@ namespace backend_trackit.Controllers
             }
 
             return Ok(new { message = "GAGAL cancel order" });
+        }
+
+        [HttpGet("DataCoordinatePoint/{id_kecamatan_pengirim}/{id_kecamatan_penerima}")]
+        public IActionResult getDataCoordinate(int id_kecamatan_pengirim, int id_kecamatan_penerima)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+
+            List<CoordinateKecamatan> pengirim = custContext.getCoordinateKecamatan(id_kecamatan_pengirim);
+            List<CoordinateKecamatan> penerima = custContext.getCoordinateKecamatan(id_kecamatan_penerima);
+
+            var result = new
+            {
+                pengirim,
+                penerima
+            };
+
+            return Ok(result);
         }
     }
 }

@@ -3,6 +3,7 @@
     public class OrderCustomerProcessed
     {
         public int id_order { get; set; }
+        public string no_resi { get; set; }
         public int id_customer_order { get; set; }
         public int id_jenis_paket { get; set; }
         public int id_status_paket { get; set; }
