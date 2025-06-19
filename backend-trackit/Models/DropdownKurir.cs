@@ -1,6 +1,6 @@
 ﻿namespace backend_trackit.Models
 {
-    public class Kurir
+    public class DropdownKurir
     {
         public int id_kurir {  get; set; }
         public string nama { get; set; }

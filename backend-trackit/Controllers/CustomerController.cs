@@ -48,6 +48,15 @@ namespace backend_trackit.Controllers
             return Ok(orders);
         }
 
+        [HttpGet("DataOrderProcessedByResi/{no_resi}")]
+        public IActionResult getDataOrderProcessedByResi(string no_resi)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+            List<OrderCustomerProcessed> orders = custContext.getDataOrderProcessedByResi(no_resi);
+
+            return Ok(orders);
+        }
+
         [HttpDelete("CancelOrder/{id_order}")]
         public IActionResult cancelDataOrder(int id_order)
         {
@@ -77,6 +86,70 @@ namespace backend_trackit.Controllers
             };
 
             return Ok(result);
+        }
+
+        [HttpGet("DataTrackingHistories/{no_resi}")]
+        public IActionResult getDataTrackingHistories(string no_resi)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+
+            List<TrackingHistory> trackingHistories = custContext.getDataTrackingHistories(no_resi);
+
+            return Ok(trackingHistories);
+        }
+
+        [HttpPost("AddListAlamat")]
+        public IActionResult addListAlamatCustomer(AddListAlamat alamat)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+
+            bool addList = custContext.createListAlamat(alamat);
+
+            if (addList)
+            {
+                return Ok(new { message = "BERHASIL menambahkan alamat"});
+            }
+
+            return StatusCode(500, new { message = "GAGAL menambahkan alamat!" });
+        }
+
+        [HttpGet("DataListAlamat/{id_customer}")]
+        public IActionResult getDataListAlamat(int id_customer)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+
+            List<ListAlamat> listAlamat = custContext.getListAlamatByCustomer(id_customer);
+
+            return Ok(listAlamat);
+        }
+
+        [HttpDelete("DeleteAlamat/{id_customer}/{id_alamat}")]
+        public IActionResult deleteAlamat(int id_customer, int id_alamat)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+            bool result = custContext.deleteAlamat(id_customer, id_alamat);
+
+            if (result)
+            {
+                return Ok(new { message = "BERHASIL delete alamat" });
+            }
+
+            return StatusCode(500, new { message = "GAGAL delete alamat!" });
+        }
+
+        [HttpPatch("UpdateAlamat")]
+        public IActionResult updateAlamat(AddListAlamat data)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+
+            bool update = custContext.updateAlamat(data);
+
+            if (update)
+            {
+                return Ok(new { message = "BERHASIL update alamat" });
+            }
+
+            return StatusCode(500, new { message = "GAGAL update alamat!" });
         }
     }
 }

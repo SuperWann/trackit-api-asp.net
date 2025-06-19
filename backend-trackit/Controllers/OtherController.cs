@@ -43,5 +43,20 @@ namespace backend_trackit.Controllers
 
             return BadRequest();
         }
+
+        [HttpGet("DataStatusPaket")]
+        public IActionResult getDataStatusPaket()
+        {
+            OtherContext otherContext = new OtherContext(this.__constr);
+
+            List<StatusPaket> dataStatus = otherContext.GetDataStatusPaket();
+
+            if (dataStatus.Count > 0)
+            {
+                return Ok(dataStatus);
+            }
+
+            return BadRequest();
+        }
     }
 }

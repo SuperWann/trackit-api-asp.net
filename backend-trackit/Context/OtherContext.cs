@@ -84,5 +84,40 @@ namespace backend_trackit.Context
 
             return dataKecamatan;
         }
+
+        public List<StatusPaket> GetDataStatusPaket()
+        {
+            List<StatusPaket> dataStatus = new List<StatusPaket>();
+
+            string query = @"select * from status_paket";
+
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    dataStatus.Add(new StatusPaket
+                    {
+                        id_status = int.Parse(reader["id_status"].ToString()),
+                        nama_status = reader["nama_status"].ToString(),
+                    });
+                }
+
+                cmd.Dispose();
+                db.closeConnection();
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+            }
+
+            return dataStatus;
+        }
+
+
     }
 }

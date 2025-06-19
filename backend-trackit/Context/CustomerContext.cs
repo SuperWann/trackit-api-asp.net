@@ -1,6 +1,7 @@
 ﻿using backend_trackit.Helper;
 using backend_trackit.Models;
 using Npgsql;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace backend_trackit.Context
 {
@@ -71,7 +72,7 @@ namespace backend_trackit.Context
         public bool checkLoginCustomer(string no_telepon, string pin)
         {
             bool isExist = false;
-            string query = @"SELECT COUNT(*) FROM customer WHERE no_telepon = @no_telepon and pin = @pin";
+            string query = @"SELECT COUNT (*) FROM customer WHERE no_telepon = @no_telepon and pin = @pin";
             DBSQLhelper db = new DBSQLhelper(this._constr);
 
             try
@@ -89,7 +90,6 @@ namespace backend_trackit.Context
             catch (Exception ex)
             {
                 _errMsg = ex.Message;
-                Console.WriteLine($"no_telepon = {no_telepon}, pin = {pin}");
             }
 
             return isExist;
@@ -230,7 +230,7 @@ namespace backend_trackit.Context
 
             DBSQLhelper db = new DBSQLhelper(this._constr);
 
-            string query = @"select* from ""Order"" o 
+            string query = @"select * from ""Order"" o 
                             join paket p on o.id_order = p.order_id_order 
                             JOIN pegawai pp ON p.pegawai_id_pegawai = pp.id_pegawai
                             where customer_id_customer = @id_customer";
@@ -277,6 +277,58 @@ namespace backend_trackit.Context
             return orders;
         }
 
+        public List<OrderCustomerProcessed> getDataOrderProcessedByResi(string no_resi)
+        {
+            List<OrderCustomerProcessed> orders = new List<OrderCustomerProcessed>();
+
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            string query = @"select * from ""Order"" o 
+                            join paket p on o.id_order = p.order_id_order 
+                            JOIN pegawai pp ON p.pegawai_id_pegawai = pp.id_pegawai
+                            where no_resi = @no_resi";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@no_resi", no_resi);
+
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    orders.Add(new OrderCustomerProcessed()
+                    {
+                        id_order = int.Parse(reader["id_order"].ToString()),
+                        no_resi = reader["no_resi"].ToString(),
+                        id_customer_order = int.Parse(reader["customer_id_customer"].ToString()),
+                        id_jenis_paket = int.Parse(reader["jenis_paket_id_jenis_paket"].ToString()),
+                        id_status_paket = int.Parse(reader["status_paket_id_status"].ToString()),
+                        berat = Convert.ToDouble(reader["berat_paket"]),
+                        nama_pengirim = reader["nama_pengirim"].ToString(),
+                        telepon_pengirim = reader["no_telepon_pengirim"].ToString(),
+                        detail_alamat_pengirim = reader["detail_alamat_pengirim"].ToString(),
+                        nama_penerima = reader["nama_penerima"].ToString(),
+                        telepon_penerima = reader["no_telepon_penerima"].ToString(),
+                        detail_alamat_penerima = reader["detail_alamat_penerima"].ToString(),
+                        isAccepted = bool.Parse(reader["isaccepted"].ToString()),
+                        waktu_order = DateTime.Parse(reader["waktu_order"].ToString()),
+                        catatan_kurir = reader["catatan_kurir"].ToString(),
+                        id_kecamatan_pengirim = int.Parse(reader["id_kecamatan_pengirim"].ToString()),
+                        id_kecamatan_penerima = int.Parse(reader["id_kecamatan_penerima"].ToString()),
+                        nama_kurir = reader["nama_pegawai"].ToString()
+                    });
+                }
+
+                cmd.Dispose();
+                db.closeConnection();
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+            }
+
+            return orders;
+        }
 
         public bool cancelOrder(int id_order)
         {
@@ -332,6 +384,169 @@ namespace backend_trackit.Context
             }
 
             return coorsKecamatan;
+        }
+
+        public List<TrackingHistory> getDataTrackingHistories(string no_resi)
+        {
+            List<TrackingHistory> trackingHistories = new List<TrackingHistory>();
+
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            string query = @"select * from tracking_history where paket_no_resi = @no_resi order by timestamp desc ";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@no_resi", no_resi);
+
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    trackingHistories.Add(new TrackingHistory()
+                    {
+                        timestamp = DateTime.Parse(reader["timestamp"].ToString()),
+                        deskripsi = reader["deskripsi_lokasi"].ToString()
+                    });
+                }
+
+                cmd.Dispose();
+                db.closeConnection();
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+            }
+
+            return trackingHistories;
+        }
+
+        public bool createListAlamat(AddListAlamat listAlamat)
+        {
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            string query = @"insert into list_alamat(nama, no_telepon, detail_alamat, customer_id_customer, kecamatan_id_kecamatan) 
+                            values (@nama, @telepon, @detail_alamat, @id_customer, @id_kecamatan)";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@nama", listAlamat.nama);
+                cmd.Parameters.AddWithValue("@telepon", listAlamat.no_telepon);
+                cmd.Parameters.AddWithValue("@detail_alamat", listAlamat.detail_alamat);
+                cmd.Parameters.AddWithValue("@id_customer", listAlamat.id_customer);
+                cmd.Parameters.AddWithValue("@id_kecamatan", listAlamat.id_kecamatan);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                cmd.Dispose();
+                db.closeConnection();
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+                return false;
+            }
+        }
+
+        public List<ListAlamat> getListAlamatByCustomer(int id_customer)
+        {
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+            List<ListAlamat> listAlamat = new List<ListAlamat>();
+
+            string query = @"select * from list_alamat la 
+                            join kecamatan k on la.kecamatan_id_kecamatan = k.id_kecamatan
+                            join kabupaten kk on k.kabupaten_id_kabupaten = kk.id_kabupaten
+                            where customer_id_customer = @id_customer
+                            order by id_alamat desc";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue(@"id_customer", id_customer);
+
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    listAlamat.Add(new ListAlamat()
+                    {
+                        nama = reader["nama"].ToString(),
+                        no_telepon = reader["no_telepon"].ToString(),
+                        detail_alamat = reader["detail_alamat"].ToString(),
+                        nama_kecamatan = reader["nama_kecamatan"].ToString(),
+                        nama_kabupaten = reader["nama_kabupaten"].ToString(),
+                    });
+                }
+
+                cmd.Dispose();
+                db.closeConnection();
+
+            }catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+            }
+
+            return listAlamat;
+        }
+
+        public bool deleteAlamat(int id_alamat, int id_customer)
+        {
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            string query = @"delete from list_alamat 
+                            where id_alamat = @id_alamat and customer_id_customer = @id_customer;";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@id_alamat", id_alamat);
+                cmd.Parameters.AddWithValue("@id_customer", id_customer);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+
+                cmd.Dispose();
+                db.closeConnection();
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+                Console.WriteLine(_errMsg);
+                return false;
+            }
+        }
+
+        public bool updateAlamat(AddListAlamat data)
+        {
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            string query = @"update list_alamat set nama = @nama, no_telepon = @telepon, detail_alamat = @detail_alamat, customer_id_customer, id_kecamatan";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@nama", data.nama);
+                cmd.Parameters.AddWithValue("@telepon", data.no_telepon);
+                cmd.Parameters.AddWithValue("@detail_alamat", data.detail_alamat);
+                cmd.Parameters.AddWithValue("@id_customer", data.id_customer);
+                cmd.Parameters.AddWithValue("@id_kecamatan", data.id_kecamatan);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                cmd.Dispose();
+                db.closeConnection();
+
+                return rowsAffected > 0;
+            }catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+                Console.WriteLine(_errMsg);
+
+                return false;
+            }
         }
     }
 }

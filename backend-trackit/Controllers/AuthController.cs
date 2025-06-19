@@ -33,7 +33,7 @@ namespace backend_trackit.Controllers
         }
 
         [HttpPost("loginCustomer")]
-        public IActionResult loginCustomer([FromBody]LoginCustomer loginCustomer)
+        public IActionResult loginCustomer(LoginCustomer loginCustomer)
         {
             CustomerContext custContext = new CustomerContext(this.__constr);
             bool customerExist = custContext.checkLoginCustomer(loginCustomer.no_telepon, loginCustomer.pin);

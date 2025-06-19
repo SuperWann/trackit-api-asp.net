@@ -1,6 +1,6 @@
 ﻿namespace backend_trackit.Models
 {
-    public class ProcessOrderAccepted
+    public class OrderAccepted
     {
         public string no_resi {  get; set; }
         public int id_order {  get; set; }
