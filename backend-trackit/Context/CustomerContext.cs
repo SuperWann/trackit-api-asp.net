@@ -45,7 +45,7 @@ namespace backend_trackit.Context
             List<RegistrasiCustomer> dataRegistrasi = new List<RegistrasiCustomer>();
             DBSQLhelper db = new DBSQLhelper(this._constr);
 
-            string query = @"insert into customer(nama_customer, no_telepon, pin, kecamatan_id_kecamatan) values( @nama, @telepon, @pin, @id_kecamatan)";
+            string query = @"insert into customer(nama_customer, no_telepon, pin, kecamatan_id_kecamatan, detail_alamat) values(@nama, @telepon, @pin, @id_kecamatan, @detail_alamat)";
 
             try
             {
@@ -54,6 +54,7 @@ namespace backend_trackit.Context
                 cmd.Parameters.AddWithValue("@telepon", dataRegis.no_telepon);
                 cmd.Parameters.AddWithValue("@pin", dataRegis.pin);
                 cmd.Parameters.AddWithValue("@id_kecamatan", dataRegis.id_kecamatan);
+                cmd.Parameters.AddWithValue("@detail_alamat", dataRegis.detail_alamat);
 
                 int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -490,21 +491,19 @@ namespace backend_trackit.Context
             return listAlamat;
         }
 
-        public bool deleteAlamat(int id_alamat, int id_customer)
+        public bool deleteAlamat(int id_alamat)
         {
             DBSQLhelper db = new DBSQLhelper(this._constr);
 
             string query = @"delete from list_alamat 
-                            where id_alamat = @id_alamat and customer_id_customer = @id_customer;";
+                            where id_alamat = @id_alamat;";
 
             try
             {
                 NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
                 cmd.Parameters.AddWithValue("@id_alamat", id_alamat);
-                cmd.Parameters.AddWithValue("@id_customer", id_customer);
 
                 int rowsAffected = cmd.ExecuteNonQuery();
-
 
                 cmd.Dispose();
                 db.closeConnection();
@@ -523,11 +522,18 @@ namespace backend_trackit.Context
         {
             DBSQLhelper db = new DBSQLhelper(this._constr);
 
-            string query = @"update list_alamat set nama = @nama, no_telepon = @telepon, detail_alamat = @detail_alamat, customer_id_customer, id_kecamatan";
+            string query = @"update list_alamat 
+                            set nama = @nama, 
+                                    no_telepon = @telepon, 
+                                    detail_alamat = @detail_alamat, 
+                                    customer_id_customer = @id_customer,
+                                    kecamatan_id_kecamatan = @id_kecamatan
+                            where id_alamat = @id_alamat";
 
             try
             {
                 NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@id_alamat", data.id_alamat);
                 cmd.Parameters.AddWithValue("@nama", data.nama);
                 cmd.Parameters.AddWithValue("@telepon", data.no_telepon);
                 cmd.Parameters.AddWithValue("@detail_alamat", data.detail_alamat);
@@ -540,11 +546,10 @@ namespace backend_trackit.Context
                 db.closeConnection();
 
                 return rowsAffected > 0;
+
             }catch (Exception ex)
             {
                 _errMsg = ex.Message;
-                Console.WriteLine(_errMsg);
-
                 return false;
             }
         }

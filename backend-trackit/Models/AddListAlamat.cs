@@ -2,6 +2,7 @@
 {
     public class AddListAlamat
     {
+        public int id_alamat {  get; set; }
         public string nama { get; set; }
         public string no_telepon { get; set; }
         public string detail_alamat { get; set; }

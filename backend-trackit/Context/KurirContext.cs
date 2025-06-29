@@ -99,5 +99,37 @@ namespace backend_trackit.Context
             }
             return listPengiriman;
         }
+
+        /*public bool updateFotoBukti(UpdateFotoBukti data)
+        {
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            string query = @"update list_alamat 
+                            set nama = @nama, 
+                                    no_telepon = @telepon, 
+                                    detail_alamat = @detail_alamat, 
+                                    customer_id_customer = @id_customer,
+                                    kecamatan_id_kecamatan = @id_kecamatan
+                            where id_alamat = @id_alamat";
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@id_alamat", data.id_alamat);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                cmd.Dispose();
+                db.closeConnection();
+
+                return rowsAffected > 0;
+
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+                return false;
+            }
+        }*/
     }
 }

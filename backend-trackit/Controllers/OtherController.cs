@@ -29,6 +29,21 @@ namespace backend_trackit.Controllers
             return BadRequest();
         }
 
+        [HttpGet("DataKecamatanByIdKabupaten/{id_kabupaten}")]
+        public IActionResult getDataKecamatanByIdKabupaten(int id_kabupaten)
+        {
+            OtherContext otherContext = new OtherContext(this.__constr);
+
+            List<Kecamatan> dataKecamatan = otherContext.GetDataKecamatanByIdKabupaten(id_kabupaten);
+
+            if (dataKecamatan.Count > 0)
+            {
+                return Ok(dataKecamatan);
+            }
+
+            return BadRequest();
+        }
+
         [HttpGet("DataKecamatan/{nama_kabupaten}")]
         public IActionResult getDataKecamatan(string nama_kabupaten)
         {
@@ -44,6 +59,7 @@ namespace backend_trackit.Controllers
             return BadRequest();
         }
 
+
         [HttpGet("DataStatusPaket")]
         public IActionResult getDataStatusPaket()
         {
@@ -54,6 +70,21 @@ namespace backend_trackit.Controllers
             if (dataStatus.Count > 0)
             {
                 return Ok(dataStatus);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet("DataKabupaten")]
+        public IActionResult getAllKabupaten()
+        {
+            OtherContext othercontext = new OtherContext(this.__constr);
+
+            List<Kabupaten> listKabupaten = othercontext.getAllkabupaten();
+
+            if (listKabupaten.Count > 0)
+            {
+                return Ok(listKabupaten);
             }
 
             return BadRequest();

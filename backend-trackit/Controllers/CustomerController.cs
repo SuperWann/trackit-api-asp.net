@@ -15,6 +15,21 @@ namespace backend_trackit.Controllers
             __constr = configuration.GetConnectionString("koneksi");
         }
 
+        [HttpPost("RegistrasiAkunCustomer")]
+        public IActionResult registrasiAkunCustomer(RegistrasiCustomer data)
+        {
+            CustomerContext custContext = new CustomerContext(this.__constr);
+
+            bool result = custContext.registrasiAkun(data);
+
+            if (result)
+            {
+                return Ok(new { message = "BERHASIL registrasi akun" });
+            }
+
+            return StatusCode(500, new { message = "GAGAL registrasi akun   !" });
+        }
+
         [HttpPost("CreateOrder")]
         public IActionResult CreateOrderCustomer(OrderCustomer order)
         {
@@ -123,11 +138,11 @@ namespace backend_trackit.Controllers
             return Ok(listAlamat);
         }
 
-        [HttpDelete("DeleteAlamat/{id_customer}/{id_alamat}")]
-        public IActionResult deleteAlamat(int id_customer, int id_alamat)
+        [HttpDelete("DeleteAlamat/{id_alamat}")]
+        public IActionResult deleteAlamat( int id_alamat)
         {
             CustomerContext custContext = new CustomerContext(this.__constr);
-            bool result = custContext.deleteAlamat(id_customer, id_alamat);
+            bool result = custContext.deleteAlamat(id_alamat);
 
             if (result)
             {

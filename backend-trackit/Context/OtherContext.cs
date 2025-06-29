@@ -46,6 +46,44 @@ namespace backend_trackit.Context
 
             return jenis;
         }
+        public List<Kecamatan> GetDataKecamatanByIdKabupaten(int id_kabupaten)
+        {
+            List<Kecamatan> dataKecamatan = new List<Kecamatan>();
+
+            string query = @"select *
+                            from kecamatan JOIN kabupaten ON kecamatan.kabupaten_id_kabupaten = kabupaten.id_kabupaten
+                            where id_kabupaten = @id_kabupaten";
+
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                cmd.Parameters.AddWithValue("@id_kabupaten", id_kabupaten);
+
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    dataKecamatan.Add(new Kecamatan
+                    {
+                        id_kecamatan = int.Parse(reader["id_kecamatan"].ToString()),
+                        nama_kecamatan = reader["nama_kecamatan"].ToString(),
+                        latitude = Convert.ToDouble(reader["latitude"]),
+                        longitude = Convert.ToDouble(reader["longitude"]),
+                    });
+                }
+
+                cmd.Dispose();
+                db.closeConnection();
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+            }
+
+            return dataKecamatan;
+        }
+
 
         public List<Kecamatan> GetDataKecamatanByKabupaten(string nama_kabupaten)
         {
@@ -118,6 +156,38 @@ namespace backend_trackit.Context
             return dataStatus;
         }
 
+        public List<Kabupaten> getAllkabupaten()
+        {
+            List<Kabupaten> listKabupaten = new List<Kabupaten>();
 
+            string query = @"select * from kabupaten";
+
+            DBSQLhelper db = new DBSQLhelper(this._constr);
+
+            try
+            {
+                NpgsqlCommand cmd = db.GetNpgsqlCommand(query);
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    listKabupaten.Add(new Kabupaten
+                    {
+                        id_kabupaten = int.Parse(reader["id_kabupaten"].ToString()),
+                        nama_kabupaten = reader["nama_kabupaten"].ToString(),
+                    });
+                }
+
+                cmd.Dispose();
+                db.closeConnection();
+            }
+            catch (Exception ex)
+            {
+                _errMsg = ex.Message;
+            }
+
+            return listKabupaten;
+
+        }
     }
 }
